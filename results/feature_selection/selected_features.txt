@@ -1,0 +1,58 @@
+BORUTA FEATURE SELECTION RESULTS
+==================================================
+
+Original features:  39
+Selected features:  6
+Tentative features: 0
+Rejected features:  33
+
+SELECTED FEATURES:
+  age
+  avg_glucose_level
+  bmi
+  age_glucose
+  age_bmi
+  age_group_senior
+
+REJECTED FEATURES:
+  hypertension
+  heart_disease
+  age_hypertension
+  age_heart_disease
+  glucose_hypertension
+  cardio_risk
+  gender_Female
+  gender_Male
+  gender_Other
+  ever_married_Yes
+  work_type_Govt_job
+  work_type_Never_worked
+  work_type_Private
+  work_type_Self-employed
+  work_type_children
+  Residence_type_Urban
+  smoking_status_Unknown
+  smoking_status_formerly smoked
+  smoking_status_never smoked
+  smoking_status_smokes
+  age_group_adult
+  age_group_child
+  age_group_middle_aged
+  age_group_young_adult
+  bmi_category_normal
+  bmi_category_obese
+  bmi_category_overweight
+  bmi_category_underweight
+  bmi_category_nan
+  glucose_risk_diabetic
+  glucose_risk_low
+  glucose_risk_normal
+  glucose_risk_pre_diabetic
+
+FINAL FEATURES USED (selected + tentative):
+  age
+  avg_glucose_level
+  bmi
+  age_glucose
+  age_bmi
+  age_group_senior
