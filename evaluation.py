@@ -43,7 +43,9 @@ def compute_metrics(y_true, y_pred, y_proba):
     """
     Compute all 13 classification and probability metrics.
     """
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    # Explicit labels keep the metric routine robust even if a model predicts
+    # only one class on a small test split.
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
 
     specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0

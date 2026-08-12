@@ -15,9 +15,11 @@ RANDOM_STATE = 42
 TEST_SIZE = 0.20
 CV_FOLDS = 5
 
-# File Paths
-DATA_PATH = 'healthcare-dataset-stroke-data.csv'
-RESULTS_DIR = 'results'
+# File Paths.  Resolve them from this file so ``python path/to/main.py`` works
+# no matter which directory the command is run from.
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(PROJECT_DIR, 'healthcare-dataset-stroke-data.csv')
+RESULTS_DIR = os.path.join(PROJECT_DIR, 'results')
 EDA_DIR = os.path.join(RESULTS_DIR, 'eda')
 METRICS_DIR = os.path.join(RESULTS_DIR, 'metrics')
 PLOTS_DIR = os.path.join(RESULTS_DIR, 'plots')

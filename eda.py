@@ -289,7 +289,7 @@ def _bivariate_analysis(df, output_dir):
     for i, col in enumerate(num_features):
         data_0 = df[df['stroke'] == 0][col].dropna()
         data_1 = df[df['stroke'] == 1][col].dropna()
-        bp = axes[i].boxplot([data_0, data_1], labels=['No Stroke', 'Stroke'],
+        bp = axes[i].boxplot([data_0, data_1], tick_labels=['No Stroke', 'Stroke'],
                               patch_artist=True)
         bp['boxes'][0].set_facecolor(colors[0])
         bp['boxes'][1].set_facecolor(colors[1])

@@ -22,6 +22,7 @@ from catboost import CatBoostClassifier
 
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline as ImbPipeline
 
 from evaluation import evaluate_model
 from config import RANDOM_STATE, CV_FOLDS, PLOTS_DIR
@@ -122,8 +123,15 @@ def run_comparison(X_train, X_test, y_train, y_test, use_smote=True,
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
+            # Resample within each fold.  Resampling before cross-validation
+            # lets synthetic samples derived from a validation fold leak into
+            # that fold's training data and inflates CV scores.
+            cv_estimator = (
+                ImbPipeline([('smote', SMOTE(random_state=RANDOM_STATE)), ('model', model)])
+                if use_smote else model
+            )
             cv_results = cross_validate(
-                model, X_train_final, y_train_final,
+                cv_estimator, X_train, y_train_arr,
                 cv=cv, scoring=scoring,
                 return_train_score=False,
                 n_jobs=1

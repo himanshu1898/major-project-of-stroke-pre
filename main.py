@@ -17,10 +17,7 @@ Orchestrates the clean, research-oriented ML pipeline:
 """
 
 import os
-import sys
 import warnings
-import numpy as np
-import pandas as pd
 
 # Suppress non-critical warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -28,8 +25,8 @@ warnings.filterwarnings('ignore', category=UserWarning)
 
 # Config & Modules
 from config import (
-    DATA_PATH, EDA_DIR, METRICS_DIR, PLOTS_DIR, FEATURE_SEL_DIR,
-    NUMERICAL_COLS, CATEGORICAL_COLS, RANDOM_STATE
+    DATA_PATH, EDA_DIR, METRICS_DIR, PLOTS_DIR, FEATURE_SEL_DIR, RESULTS_DIR,
+    NUMERICAL_COLS, CATEGORICAL_COLS
 )
 from preprocessing import load_data, split_data, preprocess_data
 from eda import run_eda
@@ -55,16 +52,18 @@ def validate_data(df):
     print("DATA VALIDATION")
     print("=" * 70)
 
-    expected_rows = 5110
-    expected_cols = 11
-
-    assert df.shape[0] == expected_rows, f"Expected {expected_rows} rows, got {df.shape[0]}"
-    assert df.shape[1] == expected_cols, f"Expected {expected_cols} cols, got {df.shape[1]}"
-    assert 'stroke' in df.columns, "'stroke' column missing"
-    assert 'id' not in df.columns, "'id' column should have been dropped"
+    required_columns = {'stroke', 'bmi', *NUMERICAL_COLS, *CATEGORICAL_COLS}
+    missing_columns = sorted(required_columns.difference(df.columns))
+    if missing_columns:
+        raise ValueError(f"Dataset is missing required columns: {missing_columns}")
+    if 'id' in df.columns:
+        raise ValueError("'id' column should have been dropped")
+    if df.empty:
+        raise ValueError("Dataset is empty")
+    if not df['stroke'].isin([0, 1]).all() or df['stroke'].nunique() != 2:
+        raise ValueError("'stroke' must contain both binary classes: 0 and 1")
 
     stroke_count = df['stroke'].sum()
-    assert stroke_count == 249, f"Expected 249 stroke cases, got {stroke_count}"
 
     print(f"[OK] Shape: {df.shape}")
     print(f"[OK] Target: {stroke_count} stroke / {len(df) - stroke_count} no-stroke")
@@ -109,7 +108,7 @@ def main():
     print("\n" + "=" * 70)
     print("STEP 5: PREPROCESS ORIGINAL FEATURES")
     print("=" * 70)
-    X_train_orig, X_test_orig, feature_names_orig, preprocessor_orig = preprocess_data(
+    X_train_orig, X_test_orig, _, _ = preprocess_data(
         X_train_raw, X_test_raw, NUMERICAL_COLS, CATEGORICAL_COLS
     )
 
@@ -122,7 +121,7 @@ def main():
 
     eng_num_cols, eng_cat_cols = get_engineered_columns()
 
-    X_train_eng, X_test_eng, feature_names_eng, preprocessor_eng = preprocess_data(
+    X_train_eng, X_test_eng, feature_names_eng, _ = preprocess_data(
         X_train_eng_raw, X_test_eng_raw, eng_num_cols, eng_cat_cols
     )
 
@@ -144,15 +143,13 @@ def main():
     print("STEP 8: SMOTE EXPERIMENT")
     print("=" * 70)
     y_original = df['stroke']
-    X_train_smote, y_train_smote = run_smote_experiment(
-        X_train_boruta, y_train, y_original, output_dir=PLOTS_DIR
-    )
+    run_smote_experiment(X_train_boruta, y_train, y_original, output_dir=PLOTS_DIR)
 
     # 9. XGBoost Experiments (A-E)
     print("\n" + "=" * 70)
     print("STEP 9: XGBOOST EXPERIMENTS (A-E)")
     print("=" * 70)
-    xgb_results, xgb_models = run_all_xgboost_experiments(
+    xgb_results, _ = run_all_xgboost_experiments(
         X_train_orig=X_train_orig, X_test_orig=X_test_orig,
         X_train_eng=X_train_eng, X_test_eng=X_test_eng,
         X_train_boruta=X_train_boruta, X_test_boruta=X_test_boruta,
@@ -224,7 +221,7 @@ def _print_final_summary(xgb_results, comparison_results, boruta_features):
         print(f"  Best model by PR-AUC: {best_comp_prauc} (PR-AUC={comparison_results[best_comp_prauc]['PR-AUC']:.4f})")
 
     print("\n--- Output Files ---")
-    for root, dirs, files in os.walk('results'):
+    for root, _, files in os.walk(RESULTS_DIR):
         for f in sorted(files):
             filepath = os.path.join(root, f)
             size_kb = os.path.getsize(filepath) / 1024

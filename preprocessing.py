@@ -66,6 +66,9 @@ def build_preprocessor(numerical_cols, categorical_cols):
     ])
 
     categorical_pipeline = Pipeline([
+        # Engineered bins can be missing when BMI is missing.  Impute before
+        # encoding so OneHotEncoder receives a consistent categorical value.
+        ('imputer', SimpleImputer(strategy='most_frequent')),
         ('encoder', OneHotEncoder(
             handle_unknown='ignore',
             drop='if_binary',

@@ -77,6 +77,15 @@ def run_boruta(X_train, y_train, feature_names, output_dir=FEATURE_SEL_DIR):
         print(f"  [-] {name}")
 
     final_mask = selected_mask | tentative_mask
+    # A strict Boruta run can reject every feature on a small or noisy split.
+    # Keep the best-ranked feature so the downstream estimators have a valid
+    # feature matrix and the pipeline still produces a diagnostic result.
+    if not final_mask.any():
+        best_feature_index = int(np.argmin(ranking))
+        final_mask[best_feature_index] = True
+        tentative_names = [feature_names[best_feature_index]]
+        print("[feature_selection] Boruta selected no features; "
+              f"using best-ranked fallback: {tentative_names[0]}")
     final_names = [f for f, s in zip(feature_names, final_mask) if s]
 
     # 1. Save selected_features.txt

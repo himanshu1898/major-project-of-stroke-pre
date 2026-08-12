@@ -1,10 +1,10 @@
 BORUTA FEATURE SELECTION RESULTS
 ==================================================
 
-Original features:  39
-Selected features:  6
+Original features:  38
+Selected features:  7
 Tentative features: 0
-Rejected features:  33
+Rejected features:  31
 
 SELECTED FEATURES:
   age
@@ -13,6 +13,7 @@ SELECTED FEATURES:
   age_glucose
   age_bmi
   age_group_senior
+  age_group_young_adult
 
 REJECTED FEATURES:
   hypertension
@@ -38,12 +39,10 @@ REJECTED FEATURES:
   age_group_adult
   age_group_child
   age_group_middle_aged
-  age_group_young_adult
   bmi_category_normal
   bmi_category_obese
   bmi_category_overweight
   bmi_category_underweight
-  bmi_category_nan
   glucose_risk_diabetic
   glucose_risk_low
   glucose_risk_normal
@@ -56,3 +55,4 @@ FINAL FEATURES USED (selected + tentative):
   age_glucose
   age_bmi
   age_group_senior
+  age_group_young_adult
