@@ -17,7 +17,7 @@ from boruta import BorutaPy
 from config import RANDOM_STATE, FEATURE_SEL_DIR
 
 
-def run_boruta(X_train, y_train, feature_names, output_dir=FEATURE_SEL_DIR, return_ranking=False):
+def run_boruta(X_train, y_train, feature_names, output_dir=FEATURE_SEL_DIR):
     """
     Perform Boruta feature selection on preprocessed training data.
     """
@@ -136,58 +136,7 @@ def run_boruta(X_train, y_train, feature_names, output_dir=FEATURE_SEL_DIR, retu
 
     print(f"\n[feature_selection] Results saved to {txt_path} and {csv_path}")
 
-    if return_ranking:
-        return final_mask, final_names, ranking
     return final_mask, final_names
-
-
-def analyze_top_n_features(feature_names, ranking, boruta_selected, n=10, output_dir=FEATURE_SEL_DIR):
-    """
-    Extract and analyze Top-N features based on Boruta ranking.
-    Compares Boruta-selected features with the Top-N ranked features.
-
-    Saves top_10_feature_ranking.csv to output_dir.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-
-    df = pd.DataFrame({
-        'Feature': list(feature_names),
-        'Ranking': ranking
-    })
-    df['Boruta_Status'] = df['Feature'].apply(
-        lambda f: 'Selected' if f in boruta_selected else 'Rejected'
-    )
-    # Sort by ranking ascending (rank 1 is best)
-    df = df.sort_values(by=['Ranking', 'Feature']).reset_index(drop=True)
-    df['In_Top_10'] = [True if i < n else False for i in range(len(df))]
-
-    top_n_df = df.head(n).copy()
-
-    csv_path = os.path.join(output_dir, f'top_{n}_feature_ranking.csv')
-    top_n_df.to_csv(csv_path, index=False)
-
-    print("\n" + "=" * 70)
-    print(f"TOP-{n} FEATURE ANALYSIS")
-    print("=" * 70)
-    print(f"\nTop-{n} Features by Boruta Ranking:")
-    print(f"{'Rank':<6} {'Feature':<32} {'Boruta Status':<16} {'In Top 10?':<10}")
-    print("-" * 66)
-    for _, row in top_n_df.iterrows():
-        print(f"{row['Ranking']:<6} {row['Feature']:<32} {row['Boruta_Status']:<16} {'Yes':<10}")
-
-    overlap = set(boruta_selected).intersection(set(top_n_df['Feature']))
-    borderline = set(top_n_df['Feature']) - set(boruta_selected)
-
-    print(f"\nSummary:")
-    print(f"  - Boruta selected features: {len(boruta_selected)}")
-    print(f"  - Top-{n} features captured: {len(top_n_df)}")
-    print(f"  - Confirmed Boruta features in Top-{n}: {len(overlap)} / {len(boruta_selected)}")
-    if borderline:
-        borderline_sorted = sorted(list(borderline))
-        print(f"  - Additional borderline features in Top-{n}: {len(borderline)} ({', '.join(borderline_sorted)})")
-    print(f"[feature_selection] Top-{n} ranking saved to {csv_path}")
-
-    return top_n_df
 
 
 def apply_feature_selection(X, mask):
@@ -195,4 +144,3 @@ def apply_feature_selection(X, mask):
     Apply Boruta selection mask to feature matrix.
     """
     return X[:, mask]
-

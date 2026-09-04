@@ -5,12 +5,7 @@ feature selection and SMOTE.  The saved bundle contains everything needed to
 make a prediction from one raw patient record.
 """
 
-import sys
 from pathlib import Path
-
-# Allow imports from the project root (parent of this dashboard folder)
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 import joblib
 from imblearn.over_sampling import SMOTE
 

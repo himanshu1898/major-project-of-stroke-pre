@@ -4,12 +4,7 @@ Run with: streamlit run dashboard.py
 This tool is for educational screening support only; it is not a diagnosis.
 """
 
-import sys
 from pathlib import Path
-
-# Allow imports from the project root (parent of this dashboard folder)
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 import joblib
 import pandas as pd
 import streamlit as st
