@@ -2,7 +2,7 @@
 """
 evaluation.py -- Comprehensive Model Evaluation
 
-Computes all 13 classification and probability metrics:
+Computes 10 primary classification and probability metrics:
   1. Accuracy
   2. Precision
   3. Recall
@@ -12,10 +12,7 @@ Computes all 13 classification and probability metrics:
   7. PR-AUC
   8. MCC
   9. Cohen's Kappa
-  10. False Positive Rate (FPR)
-  11. False Negative Rate (FNR)
-  12. Brier Score
-  13. Log Loss
+  10. Log Loss
 
 Also generates diagnostic plots: Confusion Matrix, ROC Curve, PR Curve.
 """
@@ -33,7 +30,7 @@ from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     roc_auc_score, average_precision_score, matthews_corrcoef,
     cohen_kappa_score, confusion_matrix, roc_curve,
-    precision_recall_curve, brier_score_loss, log_loss
+    precision_recall_curve, log_loss
 )
 
 from config import PLOTS_DIR
@@ -41,15 +38,13 @@ from config import PLOTS_DIR
 
 def compute_metrics(y_true, y_pred, y_proba):
     """
-    Compute all 13 classification and probability metrics.
+    Compute 10 primary classification and probability metrics.
     """
     # Explicit labels keep the metric routine robust even if a model predicts
     # only one class on a small test split.
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
 
     specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
 
     metrics = {
         'Accuracy': accuracy_score(y_true, y_pred),
@@ -61,9 +56,6 @@ def compute_metrics(y_true, y_pred, y_proba):
         'PR-AUC': average_precision_score(y_true, y_proba),
         'MCC': matthews_corrcoef(y_true, y_pred),
         'Kappa': cohen_kappa_score(y_true, y_pred),
-        'FPR': fpr,
-        'FNR': fnr,
-        'Brier Score': brier_score_loss(y_true, y_proba),
         'Log Loss': log_loss(y_true, y_proba),
     }
 
@@ -166,9 +158,6 @@ def evaluate_model(y_true, y_pred, y_proba, model_name, output_dir=PLOTS_DIR):
     print(f"  PR-AUC:      {metrics['PR-AUC']:.4f}")
     print(f"  MCC:         {metrics['MCC']:.4f}")
     print(f"  Kappa:       {metrics['Kappa']:.4f}")
-    print(f"  FPR:         {metrics['FPR']:.4f}")
-    print(f"  FNR:         {metrics['FNR']:.4f}")
-    print(f"  Brier Score: {metrics['Brier Score']:.4f}")
     print(f"  Log Loss:    {metrics['Log Loss']:.4f}")
 
     return metrics

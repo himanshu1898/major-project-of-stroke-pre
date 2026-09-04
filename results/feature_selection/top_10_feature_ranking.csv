@@ -1,0 +1,11 @@
+Feature,Ranking,Boruta_Status,In_Top_10
+age,1,Selected,True
+age_bmi,1,Selected,True
+age_glucose,1,Selected,True
+age_group_senior,1,Selected,True
+age_group_young_adult,1,Selected,True
+avg_glucose_level,1,Selected,True
+bmi,1,Selected,True
+cardio_risk,2,Rejected,True
+age_group_child,3,Rejected,True
+age_hypertension,4,Rejected,True

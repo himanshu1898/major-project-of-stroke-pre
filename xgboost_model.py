@@ -53,6 +53,7 @@ def _run_cv(model, X_train, y_train, use_smote=False, experiment_name=""):
     cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
 
     if use_smote:
+        print(f"  [CV Validation] 5-Fold Stratified CV: SMOTE applied strictly inside training folds via ImbPipeline (validation folds untouched)")
         pipeline = ImbPipeline([
             ('smote', SMOTE(random_state=RANDOM_STATE)),
             ('model', model)

@@ -3,19 +3,18 @@
 comparison_models.py -- Classical ML Model Comparison
 
 Trains classical ML models for comparison against XGBoost:
-  1. XGBoost (Main Model)
-  2. Random Forest
-  3. ExtraTrees
-  4. LightGBM
-  5. CatBoost
+  1. Random Forest
+  2. ExtraTrees
+  3. LightGBM
+  4. CatBoost
 
 All models use the same data, same train/test split, and same evaluation.
+XGBoost is excluded here because it is already covered by Experiments A-E.
 """
 
 import numpy as np
 import warnings
 
-from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
@@ -31,29 +30,9 @@ from config import RANDOM_STATE, CV_FOLDS, PLOTS_DIR
 def get_comparison_models(y_train=None):
     """
     Return a dictionary of model name -> model instance.
-    Focuses strictly on requested comparison models.
+    XGBoost is excluded (covered by xgboost_model.py experiments).
     """
-    if y_train is not None:
-        n_neg = np.sum(np.array(y_train) == 0)
-        n_pos = np.sum(np.array(y_train) == 1)
-        scale_weight = n_neg / max(n_pos, 1)
-    else:
-        scale_weight = 1
-
     models = {
-        'XGBoost': XGBClassifier(
-            n_estimators=200,
-            max_depth=5,
-            learning_rate=0.1,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            min_child_weight=3,
-            gamma=0.1,
-            scale_pos_weight=scale_weight,
-            eval_metric='logloss',
-            random_state=RANDOM_STATE,
-            use_label_encoder=False
-        ),
         'Random Forest': RandomForestClassifier(
             n_estimators=200,
             max_depth=10,
@@ -123,9 +102,8 @@ def run_comparison(X_train, X_test, y_train, y_test, use_smote=True,
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            # Resample within each fold.  Resampling before cross-validation
-            # lets synthetic samples derived from a validation fold leak into
-            # that fold's training data and inflates CV scores.
+            if use_smote:
+                print(f"  [CV Validation] 5-Fold Stratified CV: SMOTE applied strictly inside training folds via ImbPipeline (validation folds untouched)")
             cv_estimator = (
                 ImbPipeline([('smote', SMOTE(random_state=RANDOM_STATE)), ('model', model)])
                 if use_smote else model
